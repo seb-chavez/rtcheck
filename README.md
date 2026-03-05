@@ -6,15 +6,9 @@ Check your routing numbers against real-time payment networks (RTP & FedNow).
 
 ## Install
 
-**Homebrew:**
-
-    brew install seb-chavez/tap/rtcheck
-
-**Go:**
-
     go install github.com/seb-chavez/rtcheck@latest
 
-**Binary:** Download from [GitHub Releases](https://github.com/seb-chavez/rtcheck/releases).
+Or download a binary from [GitHub Releases](https://github.com/seb-chavez/rtcheck/releases).
 
 ## Usage
 

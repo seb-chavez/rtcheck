@@ -19,13 +19,6 @@ archives:
       - goos: windows
         format: zip
 
-brews:
-  - repository:
-      owner: seb-chavez
-      name: homebrew-tap
-    homepage: https://github.com/seb-chavez/rtcheck
-    description: "Check routing numbers against real-time payment networks"
-
 checksum:
   name_template: "checksums.txt"
 
