@@ -5,10 +5,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
-	"time"
 
-	"github.com/seb-chavez/rtcheck/internal/cache"
-	"github.com/seb-chavez/rtcheck/internal/data"
 	"github.com/seb-chavez/rtcheck/internal/fileparse"
 	"github.com/seb-chavez/rtcheck/internal/output"
 	"github.com/seb-chavez/rtcheck/internal/routing"
@@ -62,13 +59,7 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("no valid routing numbers found in %s", filename)
 	}
 
-	dir := cacheDir
-	if dir == "" {
-		dir = cache.DefaultDir()
-	}
-	c := cache.New(dir, 24*time.Hour)
-
-	store, err := data.LoadStore(c, refresh)
+	store, err := loadStore()
 	if err != nil {
 		return fmt.Errorf("loading data: %w", err)
 	}
@@ -77,12 +68,7 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 	rtpCount, fnCount, bothCount := 0, 0, 0
 	for _, rtn := range unique {
 		inst := store.Lookup(rtn)
-		results = append(results, output.LookupResult{
-			RoutingNumber: inst.RoutingNumber,
-			Institution:   inst.Name,
-			RTP:           inst.RTP,
-			FedNow:        inst.FedNow,
-		})
+		results = append(results, output.NewLookupResult(inst.RoutingNumber, inst.Name, inst.RTP, inst.FedNow))
 		if inst.RTP {
 			rtpCount++
 		}
@@ -125,15 +111,14 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("writing JSON output: %w", err)
 		}
 	case output.FormatCSV:
-		if err := output.PrintAnalysisCSV(os.Stdout, results); err != nil {
+		if err := output.PrintResultsCSV(os.Stdout, results); err != nil {
 			return fmt.Errorf("writing CSV output: %w", err)
 		}
 	default:
-		if !noSummary {
-			output.PrintAnalysisSummaryTable(os.Stdout, summary)
-		}
 		if noSummary {
 			output.PrintResultsTable(os.Stdout, results)
+		} else {
+			output.PrintAnalysisSummaryTable(os.Stdout, summary)
 		}
 	}
 

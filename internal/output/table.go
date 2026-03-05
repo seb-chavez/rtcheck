@@ -28,15 +28,12 @@ func boolToYesNo(b bool) string {
 
 // PrintLookupTable prints a formatted block showing routing number details.
 func PrintLookupTable(w io.Writer, r LookupResult) {
-	realTime := r.RTP || r.FedNow
-
 	table := tablewriter.NewWriter(w)
 	table.Header("FIELD", "VALUE")
 	table.Append("Routing Number", r.RoutingNumber)
 	table.Append("Institution", r.Institution)
 	table.Append("RTP", boolToYesNo(r.RTP))
 	table.Append("FedNow", boolToYesNo(r.FedNow))
-	table.Append("Real-Time Capable", boolToYesNo(realTime))
 	table.Render()
 }
 

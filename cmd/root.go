@@ -3,7 +3,10 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"time"
 
+	"github.com/seb-chavez/rtcheck/internal/cache"
+	"github.com/seb-chavez/rtcheck/internal/data"
 	"github.com/spf13/cobra"
 )
 
@@ -11,7 +14,6 @@ var (
 	version   = "dev"
 	refresh   bool
 	cacheDir  string
-	noColor   bool
 	formatOut string
 )
 
@@ -32,5 +34,13 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().BoolVar(&refresh, "refresh", false, "Force re-download of participant data")
 	rootCmd.PersistentFlags().StringVar(&cacheDir, "cache-dir", "", "Override cache directory (default: ~/.rtcheck/data/)")
-	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
+}
+
+func loadStore() (*data.Store, error) {
+	dir := cacheDir
+	if dir == "" {
+		dir = cache.DefaultDir()
+	}
+	c := cache.New(dir, 24*time.Hour)
+	return data.LoadStore(c, refresh)
 }

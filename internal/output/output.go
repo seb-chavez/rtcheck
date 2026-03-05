@@ -29,6 +29,11 @@ type LookupResult struct {
 	FedNow        bool   `json:"fednow"`
 }
 
+// NewLookupResult constructs a LookupResult from individual fields.
+func NewLookupResult(rtn, name string, rtp, fednow bool) LookupResult {
+	return LookupResult{RoutingNumber: rtn, Institution: name, RTP: rtp, FedNow: fednow}
+}
+
 // AnalysisSummary holds aggregate statistics from analyzing a file of routing numbers.
 type AnalysisSummary struct {
 	File           string  `json:"file"`
