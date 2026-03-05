@@ -17,7 +17,7 @@ import (
 
 const (
 	rtpPageURL    = "https://www.theclearinghouse.org/payment-systems/rtp/rtn"
-	fednowPageURL = "https://www.frbservices.org/financial-services/fednow/organizations"
+	fednowPageURL = "https://www.frbservices.org/financial-services/fednow/organizations/terms-of-use"
 
 	rtpCacheFile    = "rtp_rtns.json"
 	fednowCacheFile = "fednow_rtns.json"
