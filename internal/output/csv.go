@@ -33,8 +33,3 @@ func PrintResultsCSV(w io.Writer, results []LookupResult) error {
 
 	return nil
 }
-
-// PrintAnalysisCSV is an alias for PrintResultsCSV.
-func PrintAnalysisCSV(w io.Writer, results []LookupResult) error {
-	return PrintResultsCSV(w, results)
-}

@@ -5,10 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
-	"github.com/seb-chavez/rtcheck/internal/cache"
-	"github.com/seb-chavez/rtcheck/internal/data"
 	"github.com/seb-chavez/rtcheck/internal/output"
 	"github.com/spf13/cobra"
 )
@@ -33,13 +30,7 @@ func init() {
 }
 
 func runDirectory(cmd *cobra.Command, args []string) error {
-	dir := cacheDir
-	if dir == "" {
-		dir = cache.DefaultDir()
-	}
-	c := cache.New(dir, 24*time.Hour)
-
-	store, err := data.LoadStore(c, refresh)
+	store, err := loadStore()
 	if err != nil {
 		return fmt.Errorf("loading data: %w", err)
 	}
@@ -77,12 +68,7 @@ func runDirectory(cmd *cobra.Command, args []string) error {
 			}
 		}
 
-		filtered = append(filtered, output.LookupResult{
-			RoutingNumber: inst.RoutingNumber,
-			Institution:   inst.Name,
-			RTP:           inst.RTP,
-			FedNow:        inst.FedNow,
-		})
+		filtered = append(filtered, output.NewLookupResult(inst.RoutingNumber, inst.Name, inst.RTP, inst.FedNow))
 	}
 
 	format := output.ParseFormat(formatOut)

@@ -3,10 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"time"
 
-	"github.com/seb-chavez/rtcheck/internal/cache"
-	"github.com/seb-chavez/rtcheck/internal/data"
 	"github.com/seb-chavez/rtcheck/internal/output"
 	"github.com/seb-chavez/rtcheck/internal/routing"
 	"github.com/spf13/cobra"
@@ -33,24 +30,13 @@ func runLookup(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("%q is not a valid ABA routing number", args[0])
 	}
 
-	dir := cacheDir
-	if dir == "" {
-		dir = cache.DefaultDir()
-	}
-	c := cache.New(dir, 24*time.Hour)
-
-	store, err := data.LoadStore(c, refresh)
+	store, err := loadStore()
 	if err != nil {
 		return fmt.Errorf("loading data: %w", err)
 	}
 
 	inst := store.Lookup(rtn)
-	result := output.LookupResult{
-		RoutingNumber: inst.RoutingNumber,
-		Institution:   inst.Name,
-		RTP:           inst.RTP,
-		FedNow:        inst.FedNow,
-	}
+	result := output.NewLookupResult(inst.RoutingNumber, inst.Name, inst.RTP, inst.FedNow)
 
 	switch output.ParseFormat(formatOut) {
 	case output.FormatJSON:
