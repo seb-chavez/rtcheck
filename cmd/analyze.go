@@ -121,15 +121,19 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 
 	switch format {
 	case output.FormatJSON:
-		output.PrintAnalysisJSON(os.Stdout, summary, results)
+		if err := output.PrintAnalysisJSON(os.Stdout, summary, results); err != nil {
+			return fmt.Errorf("writing JSON output: %w", err)
+		}
 	case output.FormatCSV:
-		output.PrintAnalysisCSV(os.Stdout, results)
+		if err := output.PrintAnalysisCSV(os.Stdout, results); err != nil {
+			return fmt.Errorf("writing CSV output: %w", err)
+		}
 	default:
 		if !noSummary {
 			output.PrintAnalysisSummaryTable(os.Stdout, summary)
 		}
 		if noSummary {
-			output.PrintResultsTable(results)
+			output.PrintResultsTable(os.Stdout, results)
 		}
 	}
 
@@ -139,7 +143,9 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("creating output file: %w", err)
 		}
 		defer f.Close()
-		output.PrintResultsCSV(f, results)
+		if err := output.PrintResultsCSV(f, results); err != nil {
+			return fmt.Errorf("writing CSV to file: %w", err)
+		}
 		if format == output.FormatTable && !noSummary {
 			fmt.Fprintf(os.Stdout, "  Detailed results written to: %s\n\n", outputFile)
 		}

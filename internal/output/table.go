@@ -3,7 +3,6 @@ package output
 import (
 	"fmt"
 	"io"
-	"os"
 
 	"github.com/olekukonko/tablewriter"
 )
@@ -70,9 +69,9 @@ func PrintDirectoryTable(w io.Writer, results []LookupResult, page, pageSize, to
 	fmt.Fprintf(w, "\nPage %d of %d (showing %d of %d results)\n", page, totalPages, len(results), total)
 }
 
-// PrintResultsTable prints a detailed results table to stdout.
-func PrintResultsTable(results []LookupResult) {
-	table := tablewriter.NewWriter(os.Stdout)
+// PrintResultsTable prints a detailed results table to the given writer.
+func PrintResultsTable(w io.Writer, results []LookupResult) {
+	table := tablewriter.NewWriter(w)
 	table.Header("ROUTING NUMBER", "INSTITUTION", "RTP", "FEDNOW")
 
 	for _, r := range results {

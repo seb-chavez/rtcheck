@@ -172,23 +172,31 @@ func loadFedACHNames() map[string]string {
 	paths := fedACHPaths()
 
 	for _, path := range paths {
-		f, err := os.Open(path)
+		names, err := func() (map[string]string, error) {
+			f, err := os.Open(path)
+			if err != nil {
+				return nil, err
+			}
+			defer f.Close()
+
+			dict := fed.NewACHDictionary()
+			if err := dict.Read(f); err != nil {
+				return nil, fmt.Errorf("failed to parse FedACH dictionary at %s: %w", path, err)
+			}
+
+			names := make(map[string]string, len(dict.ACHParticipants))
+			for _, p := range dict.ACHParticipants {
+				names[p.RoutingNumber] = p.CustomerName
+			}
+			return names, nil
+		}()
 		if err != nil {
+			log.Printf("warning: %v", err)
 			continue
 		}
-		defer f.Close()
-
-		dict := fed.NewACHDictionary()
-		if err := dict.Read(f); err != nil {
-			log.Printf("warning: failed to parse FedACH dictionary at %s: %v", path, err)
-			continue
+		if names != nil {
+			return names
 		}
-
-		names := make(map[string]string, len(dict.ACHParticipants))
-		for _, p := range dict.ACHParticipants {
-			names[p.RoutingNumber] = p.CustomerName
-		}
-		return names
 	}
 
 	log.Println("warning: FedACH dictionary not found; institution names will be unavailable")

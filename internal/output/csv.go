@@ -7,23 +7,34 @@ import (
 )
 
 // PrintResultsCSV writes lookup results as CSV with a header row.
-func PrintResultsCSV(w io.Writer, results []LookupResult) {
+// It returns an error if writing to the underlying writer fails.
+func PrintResultsCSV(w io.Writer, results []LookupResult) error {
 	cw := csv.NewWriter(w)
-	defer cw.Flush()
 
-	cw.Write([]string{"routing_number", "institution", "rtp", "fednow"})
+	if err := cw.Write([]string{"routing_number", "institution", "rtp", "fednow"}); err != nil {
+		return fmt.Errorf("writing CSV header: %w", err)
+	}
 
 	for _, r := range results {
-		cw.Write([]string{
+		if err := cw.Write([]string{
 			r.RoutingNumber,
 			r.Institution,
 			fmt.Sprintf("%t", r.RTP),
 			fmt.Sprintf("%t", r.FedNow),
-		})
+		}); err != nil {
+			return fmt.Errorf("writing CSV row: %w", err)
+		}
 	}
+
+	cw.Flush()
+	if err := cw.Error(); err != nil {
+		return fmt.Errorf("flushing CSV writer: %w", err)
+	}
+
+	return nil
 }
 
 // PrintAnalysisCSV is an alias for PrintResultsCSV.
-func PrintAnalysisCSV(w io.Writer, results []LookupResult) {
-	PrintResultsCSV(w, results)
+func PrintAnalysisCSV(w io.Writer, results []LookupResult) error {
+	return PrintResultsCSV(w, results)
 }

@@ -13,11 +13,12 @@ import (
 )
 
 var lookupCmd = &cobra.Command{
-	Use:   "lookup <routing-number>",
-	Short: "Look up a single routing number",
-	Long:  "Check if a routing number participates in RTP and/or FedNow networks.",
-	Args:  cobra.ExactArgs(1),
-	RunE:  runLookup,
+	Use:          "lookup <routing-number>",
+	Short:        "Look up a single routing number",
+	Long:         "Check if a routing number participates in RTP and/or FedNow networks.",
+	Args:         cobra.ExactArgs(1),
+	SilenceUsage: true,
+	RunE:         runLookup,
 }
 
 func init() {
@@ -29,8 +30,7 @@ func runLookup(cmd *cobra.Command, args []string) error {
 	rtn := routing.Normalize(args[0])
 
 	if !routing.IsValid(rtn) {
-		fmt.Fprintf(os.Stderr, "Error: %q is not a valid ABA routing number\n", args[0])
-		os.Exit(1)
+		return fmt.Errorf("%q is not a valid ABA routing number", args[0])
 	}
 
 	dir := cacheDir
@@ -54,7 +54,9 @@ func runLookup(cmd *cobra.Command, args []string) error {
 
 	switch output.ParseFormat(formatOut) {
 	case output.FormatJSON:
-		output.PrintLookupJSON(os.Stdout, result)
+		if err := output.PrintLookupJSON(os.Stdout, result); err != nil {
+			return fmt.Errorf("writing JSON output: %w", err)
+		}
 	default:
 		output.PrintLookupTable(os.Stdout, result)
 	}

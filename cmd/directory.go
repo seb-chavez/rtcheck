@@ -63,6 +63,8 @@ func runDirectory(cmd *cobra.Command, args []string) error {
 				if !inst.RTP || !inst.FedNow {
 					continue
 				}
+			default:
+				return fmt.Errorf("unrecognized --network value %q: must be rtp, fednow, or both", network)
 			}
 		}
 
@@ -87,10 +89,14 @@ func runDirectory(cmd *cobra.Command, args []string) error {
 
 	switch format {
 	case output.FormatJSON:
-		output.PrintDirectoryJSON(os.Stdout, filtered)
+		if err := output.PrintDirectoryJSON(os.Stdout, filtered); err != nil {
+			return fmt.Errorf("writing JSON output: %w", err)
+		}
 		return nil
 	case output.FormatCSV:
-		output.PrintResultsCSV(os.Stdout, filtered)
+		if err := output.PrintResultsCSV(os.Stdout, filtered); err != nil {
+			return fmt.Errorf("writing CSV output: %w", err)
+		}
 		return nil
 	}
 
